@@ -118,15 +118,22 @@ def createAIpost(request):
             hobbies_AI = ["travelling to a certain random place", "exploring new places", "riding motorcycles"]
             post_AI = create_blog_post(user_AI, hobbies_AI)
 
-            #pattern = re.compile(r'(\w+): (.+)')
-            string_data = post_AI.replace('\n', '').replace('\r', '')
-            #matches = pattern.findall(post_AI)
-            #data_filter = dict(post_AI)
-            json_data = json.loads(string_data)
+            #regex to filter title and content
+            pattern_title = re.compile(r'[tT]itle\s?:\s?.*')
+            pattern_content = re.compile(r'[cC]ontext\s?:\s?.*', re.DOTALL)
+
+            title_fetch = pattern_title.search(post_AI)
+            content_fetch = pattern_content.search(post_AI)
+            key_title, value_title = title_fetch[0].split(":", 1)
+            key_content, value_content = content_fetch[0].split(":", 1)
+            #title = {"title": value_title}
+            #content = {"content": value_content}
+
+            json_data = {"title": value_title, "content": value_content}
 
             #username object fetching
             user_instance = get_user_model().objects.get(username=user_AI)
-            post = Post(title=json_data['title'], context=json_data['context'], author=user_instance)
+            post = Post(title=value_title, content=value_content, author=user_instance)
             print(json_data)
             post.save()         
 
